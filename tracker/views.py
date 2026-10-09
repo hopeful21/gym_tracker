@@ -70,7 +70,10 @@ def start_workout(request):
             return redirect('workout')
     else:
         form = WorkoutStartForm()
-    return render(request, 'tracker/start_workout.html', {'form': form})
+    return render(request, 'tracker/start_workout.html', {
+        'form': form,
+        'muscle_groups_available': MuscleGroup.objects.exists(),
+    })
 
 
 @login_required
