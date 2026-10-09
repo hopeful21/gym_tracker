@@ -1,0 +1,21 @@
+{% load static %}<!doctype html>
+<html lang="en" data-theme="{{ preferences.theme|default:'dark' }}">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="FORM / FITNESS — a smarter way to train, stay consistent, and become stronger.">
+  <title>{% block title %}FORM / FITNESS{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'tracker/images/favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}"><script defer src="{% static 'tracker/js/main.js' %}"></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<header class="site-header"><a class="brand" href="{% url 'home' %}" aria-label="Form Fitness home"><span>FORM</span><i>/</i> FITNESS</a>
+{% if user.is_authenticated %}<button class="menu-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle navigation"><span></span><span></span></button>{% endif %}
+{% if user.is_authenticated %}<nav id="main-nav" class="main-nav"><a href="{% url 'home' %}">Overview</a><a href="{% url 'workout' %}">Workouts</a><a href="{% url 'exercises' %}">Exercises</a><a href="{% url 'history' %}">History</a><a href="{% url 'analytics' %}">Progress</a></nav><div class="account-actions"><span class="account-name">{{ user.username }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-link" type="submit">Log out</button></form><a class="button button-small button-lime header-cta" href="{% url 'start_workout' %}">Start workout <span aria-hidden="true">↗</span></a></div>{% else %}<nav class="auth-nav"><a href="{% url 'login' %}">Log in</a><a class="button button-small button-lime" href="{% url 'register' %}">Create account</a></nav>{% endif %}</header>
+{% if messages %}<div class="toast-stack" aria-live="polite">{% for message in messages %}<div class="toast {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+<main>{% block content %}{% endblock %}</main>
+<aside class="status-bar"><span class="status-indicator {% if site_workout.status == 'active' %}status-active{% elif site_workout.status == 'paused' %}status-paused{% endif %}"></span><span>{% if site_workout %}{{ site_workout.get_status_display }} · <span data-live-timer data-start="{{ site_workout.started_at|date:'c' }}" data-paused="{{ site_workout.accumulated_paused_seconds }}" data-paused-at="{{ site_workout.paused_at|date:'c' }}" data-status="{{ site_workout.status }}">{{ site_workout.duration_display }}</span>{% else %}READY · No active workout{% endif %}</span><span class="status-spacer"></span><span>{{ today_completed_sets }} sets today</span><span class="status-date">{{ now|date:'D, M j' }}</span><span class="status-time" data-clock></span></aside>
+<footer class="site-footer"><div class="footer-brand"><a class="brand" href="{% url 'home' %}"><span>FORM</span><i>/</i> FITNESS</a><p>Train with intention. Build a stronger you.</p></div>{% if user.is_authenticated %}<div><h3>Training</h3><a href="{% url 'start_workout' %}">Start a workout</a><a href="{% url 'history' %}">Workout history</a></div><div><h3>Explore</h3><a href="{% url 'exercises' %}">Exercise library</a><a href="{% url 'analytics' %}">Progress</a></div>{% endif %}<div><h3>Your space</h3>{% if user.is_authenticated %}<a href="{% url 'settings' %}">Settings</a>{% else %}<a href="{% url 'login' %}">Log in</a><a href="{% url 'register' %}">Register</a>{% endif %}{% if user.is_staff %}<a href="/admin/">Admin</a>{% endif %}</div><p class="copyright">© {% now "Y" %} FORM / FITNESS. Built for the work you put in.</p></footer>
+</body></html>
